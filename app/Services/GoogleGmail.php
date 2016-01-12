@@ -81,7 +81,7 @@ public function getMailsContents($list = null)
 
 public function getLebels()
 {
- return  $service->users_labels->listUsersLabels($this->defaultUserId);
+ return  $this->service->users_labels->listUsersLabels($this->defaultUserId);
 }
 
 // @param null $id
