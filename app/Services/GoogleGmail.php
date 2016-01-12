@@ -36,7 +36,8 @@ class GoogleGmail
     {
       $this->client->authenticate($_GET['code']);
       $_SESSION['access_token'] = $this->client->getAccessToken();
-        }
+    }
+
   }
 // @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
 public function redirectToAuth()
@@ -51,6 +52,7 @@ public function getEmailsList() //get list of gmail emails id's
 {
   if(isset($_SESSION['access_token']))
   {
+
     $this->client->setAccessToken($_SESSION['access_token']);
     $messages = $this->listMessages($this->service, $this->defaultUserId);
     return  $messages;
@@ -71,11 +73,16 @@ public function getMailsContents($list = null)
     {
       $content = $this->messagesGetRequest($v->id);
       array_push($messagesContents, $content);
+
     }
-       }
+  }
   return $messagesContents;
 }
 
+public function getLebels()
+{
+ return  $service->users_labels->listUsersLabels($this->defaultUserId);
+}
 
 // @param null $id
 // @return array|string 
@@ -170,7 +177,11 @@ public function listHistory()
    $opt_param = array('startHistoryId' => $startHistoryId);
     $pageToken = NULL;
     $histories = array();
-    $newestMessage = GmailEmail::orderBy('internal_date','desc')->first();
+
+    /**
+     * @todo sget the messages from the database
+     */
+    // $newestMessage = GmailEmail::orderBy('internal_date','desc')->first();
     $opt_param['startHistoryId'] = $newestMessage->history_id;
     do {
       try {

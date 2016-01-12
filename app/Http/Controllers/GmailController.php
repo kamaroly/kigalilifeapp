@@ -1,11 +1,10 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\GmailEmail;
-use App\Http\Controllers\ApiController;
+// use App\GmailEmail;
 use App\Services\GoogleGmail;
 use Illuminate\Support\Facades\Redirect;
-class GmailController extends ApiController
+class GmailController extends Controller
 {
   protected $gmailService;
   function __construct(GoogleGmail $googleGmail)
@@ -26,15 +25,23 @@ class GmailController extends ApiController
   public function getEmails()
     {
        $messagesList = null;
-       $messages = GmailEmail::all();
-       if(!$messages)
-       {
+
+    /**
+     * @todo get the messages from the database
+     */
+       // $messages = GmailEmail::all();
+       // if(!$messages)
+       // {
         $messagesList = $this->gmailService->getEmailsList();
-       } else {
-          $messagesHistoryList = $this->gmailService->listHistory();
-          $messagesList = $this->gmailService->prepareHistoryList($messagesHistoryList);
-       }
+
+       // } else {
+          // $messagesHistoryList = $this->gmailService->listHistory();
+          // $messagesList = $this->gmailService->prepareHistoryList($messagesHistoryList);
+       // }
+       
+       dd($this->gmailService->getLebels());
        $messagesContents = $this->gmailService->getMailsContents($messagesList);
+
        dd($messagesContents);
          $this->gmailService->saveMailsToDb($messagesContents);
         return redirect(url('/dashboard/messages/gmail/emails'));

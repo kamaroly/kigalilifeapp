@@ -15,7 +15,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('fetch', 'FetchMailController@index');
 
 /*
 |--------------------------------------------------------------------------
@@ -29,20 +28,6 @@ Route::get('fetch', 'FetchMailController@index');
 */
 
 Route::group(['middleware' => ['web']], function () {
-	Route::get('fetch', function(){
-		//Your gmail email address and password
-		$username = env('KIGALILIFE_USERNAME');
-		$password = env('KIGALILIFE_PASSWORD');
-
-		$fetcher = new App\Factories\MailFetcher($username,$password);
-		$fetcher->attachmentPath = "imap-dump";
-
-		$found_mails = $fetcher->get();
-		$foundMail = null;
-		foreach ($found_mails as $key => $value) {
-			$foundMail = $value;
-		}
-		
-		dd($foundMail->body);
-	});
+	Route::get('fetch', 'GmailController@getEmails');
+	Route::get('auth', 'GmailController@googleAuth');
 });
