@@ -1,6 +1,7 @@
 <?php 
 namespace App\Factories;
 
+
 /**
  *	Gmail attachment extractor.
  *
@@ -10,8 +11,9 @@ namespace App\Factories;
  *	extension=php_imap.dll
  *
  */
+//include email parser
 use Exception;
-
+use  Sunra\PhpSimple\HtmlDomParser;
 
 class MailFetcher 
 {
@@ -74,13 +76,20 @@ class MailFetcher
 	 * $max_emails, puts the limit on the number of emails downloaded
 	 * @var numeric
 	 */
-	public $max_emails = 1;
+	public $max_emails = 10;
 
 	/**
 	 * Set path to the attachment
 	 * @var string
 	 */
 	public $attachmentPath = "./";
+
+	/**
+	 * This variable holds the title of the current mail 
+	 * that is being processed
+	 * @var string
+	 */
+	private $currentMailTitle;
 
 	/**
 	 * Entry point for out class
@@ -163,6 +172,7 @@ class MailFetcher
 		    foreach($this->emails as $email_number) 
 		    {	
 		    	$email = $this->getHeaders($email_number);
+
 		    	$email->body = $this->getBody($email_number);
 		    	$email->attachments = $this->getAttachments($email_number);
 
@@ -201,7 +211,17 @@ class MailFetcher
 	public function getBody($email_number)
 	{
 		$body = imap_qprint(imap_fetchtext($this->connection, $email_number));
-		preg_match('~<div id="ygrp-text" >([^{]*)</div>~i', $body, $body);
+
+		if (strpos(strtolower($body),strtolower('id="ygrp-text"')) != false) {
+			$dom = HtmlDomParser::str_get_html( $body );
+	        $elems = $dom->find('div[id=ygrp-text]');
+
+	        if (empty($elems) == false) {
+		        $body = $elems[0]->innertext;
+	        }
+	       
+
+		}
 		return $body ;//strip_tags($body);
 	}
 

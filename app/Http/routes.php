@@ -28,6 +28,11 @@ Route::get('/', function () {
 */
 
 Route::group(['middleware' => ['web']], function () {
-	Route::get('fetch', 'GmailController@getEmails');
+	Route::get('fetch','FetchMailController@index');
 	Route::get('auth', 'GmailController@googleAuth');
+
+
+	Route::get('test', function(){
+		
+	});
 });

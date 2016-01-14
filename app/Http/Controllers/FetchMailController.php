@@ -5,8 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Http\Requests;
 use Illuminate\Http\Request;
- require 'imap-attachment.php';
-
+use App\Factories\MailFetcher;
 
 class FetchMailController extends Controller
 {
@@ -25,25 +24,8 @@ class FetchMailController extends Controller
 		$hostname = '{imap.gmail.com:993/imap/ssl}INBOX';
 		//Open the connection
     
-       
+        $mails = new MailFetcher($username,$password);
 
-        $inbox = new IMAPMailbox($hostname, $username, $password);
-
-        $emails = $inbox->search('ALL');
-       
-        if ($emails) {
-            rsort($emails);
-            foreach ($emails as $email) {
-               
-                    foreach ($email->getAttachments() as $attachment) {
-                        $savepath = $attachment->getFilename();
-                         dd($savepath);
-                        file_put_contents($savepath, $attachment);
-                    }
-
-                   
-
-            }
-        }
+        dd($mails->get());
     }
 }

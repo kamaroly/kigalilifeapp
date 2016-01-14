@@ -160,7 +160,6 @@ return [
         /**
          * Third part providers
          */
-         Artdarek\OAuth\OAuthServiceProvider::class,
 
     ],
 
@@ -211,8 +210,7 @@ return [
         /**
          * Third party alias
          */
-        'OAuth'     => Artdarek\OAuth\Facade\OAuth::class,
-
+        
     ],
 
 ];
