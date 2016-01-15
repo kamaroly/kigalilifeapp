@@ -55,7 +55,7 @@ class MailFetcher
 	 * $searchQuery to filter imap inbox
 	 * @var string
 	 */
-	public $searchQuery  = 'SUBJECT "[kigalilife]" SINCE "09 January 2016"';
+	public $searchQuery  = 'SUBJECT "[kigalilife]" SINCE "15 January 2016"';
 
 	/**
 	 * Emails returned by the imap
@@ -76,13 +76,13 @@ class MailFetcher
 	 * $max_emails, puts the limit on the number of emails downloaded
 	 * @var numeric
 	 */
-	public $max_emails = 10;
+	public $max_emails = 20;
 
 	/**
 	 * Set path to the attachment
 	 * @var string
 	 */
-	public $attachmentPath = "./";
+	public $attachmentPath = "/attachments/";
 
 	/**
 	 * This variable holds the title of the current mail 
@@ -104,6 +104,8 @@ class MailFetcher
 		$this->password = $password;
 		$this->hostname = $hostname;
 		$this->timeLimit= $timeLimit;
+
+		$this->attachmentPath =  public_path().$this->attachmentPath;
 
 		/** Authenticate upon initiating this class */
 		$this->open();
@@ -175,7 +177,6 @@ class MailFetcher
 
 		    	$email->body = $this->getBody($email_number);
 		    	$email->attachments = $this->getAttachments($email_number);
-
 		 		$emailsFound[$email_number] = $email;
 
 		        if($count++ >= $this->max_emails) break;
@@ -210,7 +211,7 @@ class MailFetcher
 	 */
 	public function getBody($email_number)
 	{
-		$body = imap_qprint(imap_fetchtext($this->connection, $email_number));
+		$body = quoted_printable_decode(imap_fetchtext($this->connection, $email_number));
 
 		if (strpos(strtolower($body),strtolower('id="ygrp-text"')) != false) {
 			$dom = HtmlDomParser::str_get_html( $body );
@@ -219,8 +220,6 @@ class MailFetcher
 	        if (empty($elems) == false) {
 		        $body = $elems[0]->innertext;
 	        }
-	       
-
 		}
 		return $body ;//strip_tags($body);
 	}
@@ -232,6 +231,7 @@ class MailFetcher
 	 */
 	public function getAttachments($email_number)
 	{
+		        $retrivedAttachments = array();
 		        /* get information specific to this email */
 		        $overview = imap_fetch_overview($this->connection,$email_number,0);
 		 
@@ -321,8 +321,13 @@ class MailFetcher
 	                /* prefix the email number to the filename in case two emails
 	                 * have the attachment with the same file name.
 	                 */
-	                $fp = fopen($this->attachmentPath . $email_number . "-" . $filename, "w+");
+	                preg_replace('/[^A-Za-z0-9\-]/', '', $filename);
+	                $absolutePath = $this->attachmentPath . $email_number . "-" . $filename;
+	                $fp = fopen($absolutePath, "w+");
 	                fwrite($fp, $attachment['attachment']);
+
+	                // Adding the file to the lists of the attachments then return it
+	                $retrivedAttachments[] = $absolutePath;
 	                fclose($fp);
 		        }
 
