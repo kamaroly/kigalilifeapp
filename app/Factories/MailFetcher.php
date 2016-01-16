@@ -56,7 +56,7 @@ class MailFetcher
 	 * $searchQuery to filter imap inbox
 	 * @var string
 	 */
-	public $searchQuery  = 'SUBJECT "[kigalilife]" SINCE "15 January 2016"';
+	public $searchQuery  ;
 
 	/**
 	 * Emails returned by the imap
@@ -105,7 +105,7 @@ class MailFetcher
 		$this->password = $password;
 		$this->hostname = $hostname;
 		$this->timeLimit= $timeLimit;
-
+		$this->searchQuery =  'SUBJECT "[kigalilife]" SINCE "'.date('d F Y').'"';
 		$this->attachmentPath =  public_path().$this->attachmentPath;
 
 		/** Authenticate upon initiating this class */
