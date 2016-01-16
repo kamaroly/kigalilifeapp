@@ -144,7 +144,7 @@ class MailFetcher
 		$emails = imap_search($this->connection,$this->searchQuery);
 		if ($emails) {
 			/* put the newest emails on top */
-			rsort($emails);
+			// rsort($emails);
 			$this->emails = $emails;
 		}
 
