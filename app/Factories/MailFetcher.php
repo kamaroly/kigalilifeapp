@@ -176,12 +176,15 @@ class MailFetcher
 
 			// If the latest email retrieve is same as the latest email 
 			// at the emap server at the moment, then stop by here
-			$latestFetchedEmails = rsort($this->emails);
-			if($latestAd==reset($latestFetchedEmails)){
+			
+			rsort($this->emails);
+			if($latestAd==reset($this->emails)){
 				$this->close();
 				return [];
 			}
 			
+			// Change back to the old order
+			rsort($this->emails);
 			/* for every email... */
 		    foreach($this->emails as $email_number) 
 		    {	
