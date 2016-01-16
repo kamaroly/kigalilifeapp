@@ -105,7 +105,7 @@ class MailFetcher
 		$this->password = $password;
 		$this->hostname = $hostname;
 		$this->timeLimit= $timeLimit;
-		$this->searchQuery =  'SUBJECT "[kigalilife]" SINCE "'.date('d F Y').'"';
+		$this->searchQuery =  'SUBJECT "[kigalilife]" SINCE "'.date('d F Y',strtotime('-4 day',time())).'"';
 		$this->attachmentPath =  public_path().$this->attachmentPath;
 
 		/** Authenticate upon initiating this class */
