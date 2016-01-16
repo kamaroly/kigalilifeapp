@@ -406,7 +406,6 @@ class MailFetcher
 	                /* prefix the email number to the filename in case two emails
 	                 * have the attachment with the same file name.
 	                 */
-	                preg_replace('/[^A-Za-z0-9\-]/', '', $filename);
 	                $absolutePath = $this->attachmentPath . $email_number . "-" . $filename;
 	                $fp = fopen($absolutePath, "w+");
 	                fwrite($fp, $attachment['attachment']);
