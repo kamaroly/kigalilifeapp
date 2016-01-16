@@ -77,7 +77,7 @@ class MailFetcher
 	 * $max_emails, puts the limit on the number of emails downloaded
 	 * @var numeric
 	 */
-	public $max_emails = 50;
+	public $max_emails = 1000;
 
 	/**
 	 * Set path to the attachment
