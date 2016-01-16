@@ -160,7 +160,6 @@ return [
         /**
          * Third part providers
          */
-
     ],
 
     /*

@@ -46,7 +46,7 @@ class RetrieveKigaliLifeEmailsTask extends Command
             //Select messagestatus as ALL or UNSEEN which is the unread email
             $ToSearch = 'kigalilife';
             $dateToSearch = '"05-JAN-15"';
-            $messagestatus = 'SUBJECT "kigalilife" SINCE "1 January 2016"';
+            $messagestatus = 'SUBJECT "kigalilife" SINCE "'.date('d F Y').'"';
             //-------------------------------------------------------------------
             //Gmail host with folder
             $hostname = '{imap.gmail.com:993/imap/ssl}INBOX';

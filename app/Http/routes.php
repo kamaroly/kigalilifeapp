@@ -31,8 +31,10 @@ Route::group(['middleware' => ['web']], function () {
 	Route::get('fetch','FetchMailController@index');
 	Route::get('auth', 'GmailController@googleAuth');
 
+Route::get('api/v1/ads', '\App\Http\Controllers\Apis\AdsController@all');
 
 	Route::get('test', function(){
-		
+		App\Models\Ad::truncate();
+		return App\Models\Ad::all();
 	});
 });

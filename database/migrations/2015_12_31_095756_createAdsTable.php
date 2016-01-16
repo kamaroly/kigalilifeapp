@@ -13,19 +13,20 @@ class CreateAdsTable extends Migration
     public function up()
     {
         Schema::create('ads', function (Blueprint $table) {
-            $table->increments('id');
-
-            $table->text('body')->nullable();
-            $table->string('return_path')->nullable();
-            $table->string('x_original_to')->nullable();
-            $table->string('delivered_to')->nullable();
-            $table->string('mailto')->nullable(); 
-            $table->string('subject')->nullable(); 
-            $table->string('message_id')->nullable();
-            $table->tinyInteger('maildate')->nullable();
-            $table->string('mailfrom')->nullable();
-            $table->tinyInteger('added')->nullable();
-            $table->string('content_transfer_encoding')->nullable();
+            $table->increments('id')->unique();
+            $table->string('owner');
+            $table->string('subject');
+            $table->string('slug')->unique();
+            $table->text('body');
+            $table->string('message_id');
+            $table->string('message_number'); 
+            $table->string('sent_date');
+            $table->string('recieved_date');
+            $table->string('sender_address');
+            $table->string('from_address');
+            $table->string('size');
+            $table->integer('udate');
+            $table->text('attachments');
 
             $table->timestamps();
         });

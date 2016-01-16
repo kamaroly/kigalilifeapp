@@ -14,6 +14,7 @@ namespace App\Factories;
 //include email parser
 use Exception;
 use  Sunra\PhpSimple\HtmlDomParser;
+use App\Models\Ad;
 
 class MailFetcher 
 {
@@ -76,7 +77,7 @@ class MailFetcher
 	 * $max_emails, puts the limit on the number of emails downloaded
 	 * @var numeric
 	 */
-	public $max_emails = 20;
+	public $max_emails = 50;
 
 	/**
 	 * Set path to the attachment
@@ -170,20 +171,78 @@ class MailFetcher
 
 			$emailsFound = array();
 
+			// Get the latest email we retrieved
+			$latestAd = (int) Ad::max('message_number');
+
+			// If the latest email retrieve is same as the latest email 
+			// at the emap server at the moment, then stop by here
+			if($latestAd==reset($this->emails)){
+				return [];
+			}
+			
 			/* for every email... */
 		    foreach($this->emails as $email_number) 
 		    {	
+		    	$ad = new Ad;
+		    	// Get headers 
 		    	$email = $this->getHeaders($email_number);
 
-		    	$email->body = $this->getBody($email_number);
-		    	$email->attachments = $this->getAttachments($email_number);
+				$ad->owner			=  trim(str_replace('[kigalilife]', '',$email->from[0]->personal));
+				$ad->subject		=  trim(str_replace('[kigalilife]', '',$email->subject));
+
+				$ad->slug		    =  $this->slug(str_slug($ad->subject));
+				$ad->message_id		=  $email->message_id;
+				$ad->message_number	=  $email_number;
+				$ad->sent_date		=  $email->date;
+				$ad->recieved_date	=  $email->maildate;
+				$ad->sender_address	=  $email->senderaddress;
+				$ad->from_address	=  trim(substr($email->fromaddress,1,strpos($email->fromaddress,'[kigalilife]')-1));
+				$ad->size			=  $email->size;
+				$ad->udate			=  $email->udate;
+
+		    	// Get mail number
+		    	$email->message_number = $email_number;
+
+		    	// Get body of the current message
+		    	$body_data = imap_fetchbody($this->connection,$email_number,"");
+
+		    	// Get clean body
+		    	$ad->body = trim($this->getBody($body_data));
+
+		    	// Get attachments if they are available
+		    	$email->attachments = $this->getAttachments($body_data,$email_number);
+
+		    	 if (empty(strpos($body_data,'type=image;')) == false) {
+		 		 	$email->attachments[] = $this->fetchAttachments($email_number);
+		 		 }
+
+		    	// Save all this emails information
 		 		$emailsFound[$email_number] = $email;
 
+		 		$ad->attachments	=  json_encode($email->attachments);
+
+		 		$ad->save();
 		        if($count++ >= $this->max_emails) break;
 		   }
 
 		   $this->close();
 		   return $emailsFound;
+	}
+
+	private function slug($slug){
+		$latestSlug = Ad::whereRaw("slug RLIKE '^{$slug}(-[0-9]*)?$'")
+						 ->latest('id')
+						 ->pluck('slug');
+
+	    if($latestSlug){
+	    	$pieces = explode('-',$latestSlug);
+
+	    	$number = end($pieces);
+
+	    	$slug   .= '-'.($number + 1);
+	    }
+
+	    return $slug;
 	}
 
 	/**
@@ -209,9 +268,9 @@ class MailFetcher
 	 * @param  numeric $number mail number
 	 * @return array         headers info
 	 */
-	public function getBody($email_number)
+	public function getBody($body_data)
 	{
-		$body = quoted_printable_decode(imap_fetchtext($this->connection, $email_number));
+		$body = quoted_printable_decode($body_data);
 
 		if (strpos(strtolower($body),strtolower('id="ygrp-text"')) != false) {
 			$dom = HtmlDomParser::str_get_html( $body );
@@ -221,7 +280,8 @@ class MailFetcher
 		        $body = $elems[0]->innertext;
 	        }
 		}
-		return $body ;//strip_tags($body);
+
+		return strip_tags($body);
 	}
 
 	/**
@@ -229,17 +289,39 @@ class MailFetcher
 	 * @param  numeric $number mail number
 	 * @return array         headers info
 	 */
-	public function getAttachments($email_number)
+	public function getAttachments($decode,$email_number)
 	{
 		        $retrivedAttachments = array();
 		        /* get information specific to this email */
-		        $overview = imap_fetch_overview($this->connection,$email_number,0);
-		 
-		        /* get mail message, not actually used here. 
-		           Refer to http://php.net/manual/en/function.imap-fetchbody.php
-		           for details on the third parameter.
-		         */
-		        $message = imap_fetchbody($this->connection,$email_number,2);
+				  preg_match_all('/< *img[^>]*src *= *["\']?([^"\']*)/i', $decode, $images);
+		 		 
+				 if (isset($images[1]) && count($images[1]) > 0) {
+				 	foreach ($images[1] as $key => $value) {
+
+				 		if (empty(strpos($value,'xa.yimg.com')))
+				 		{
+				 			continue;
+				 		}
+				 		// For the sake of gaining time and performance, we won't save our
+				 		// images locally, instead we are going to add them to the  array
+				 		// which we will be saving in our db
+			 			$retrivedAttachments[] = [
+			 										'thumbnail' => $value,
+			 										'full_image'=> str_replace('/tn/', '/', $value)
+			 									 ];
+			 		}
+				 }
+        return $retrivedAttachments;
+	}
+
+	/**
+	 * Get specific mail attachments
+	 * @param  numeric $number mail number
+	 * @return array         headers info
+	 */
+	public function fetchAttachments($email_number)
+	{
+		        $retrivedAttachments = array();
 		 
 		        /* get mail structure */
 		        $structure = imap_fetchstructure($this->connection, $email_number);
@@ -249,7 +331,6 @@ class MailFetcher
 		        /* if any attachments found... */
 		        if(isset($structure->parts) && count($structure->parts)) 
 		        {
-
 		            for($i = 0; $i < count($structure->parts); $i++) 
 		            {
 		                $attachments[$i] = array(
@@ -310,7 +391,6 @@ class MailFetcher
 		 				unset($attachments[$key]);
 		 				continue;
 		 			}
-
 		 		   // For us to reach here we have an attachment
 		 		   // Let's extract it then
 	               $filename = $attachment['name'];
@@ -325,15 +405,12 @@ class MailFetcher
 	                $absolutePath = $this->attachmentPath . $email_number . "-" . $filename;
 	                $fp = fopen($absolutePath, "w+");
 	                fwrite($fp, $attachment['attachment']);
-
 	                // Adding the file to the lists of the attachments then return it
 	                $retrivedAttachments[] = $absolutePath;
 	                fclose($fp);
 		        }
-
-        return $attachments;
+        return $retrivedAttachments;
 	}
-
 	/**
 	 * Set search query
 	 * 
