@@ -40,7 +40,7 @@ class AdsController extends Controller
 
         } catch (\Exception $e) {
 
-            return $this->response->errorNotFound();
+            return $e->getMessage();
         }
     }
 

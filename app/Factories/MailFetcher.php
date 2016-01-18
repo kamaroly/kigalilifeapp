@@ -431,7 +431,7 @@ class MailFetcher
 
 	                file_put_contents($absolutePath, $attachment['attachment']);
 
-	                $attachmentsPath[] = $filename;
+	                $attachmentsPath[] = $email_number . "-" . $filename;
 		        }
 
 
