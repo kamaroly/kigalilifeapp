@@ -214,12 +214,11 @@ class MailFetcher
 		    	// Get clean body
 		    	$ad->body = trim($this->getBody($body_data));
 
-		    	// Get attachments if they are available
+		    	// Get attachments if they are inline
 		    	$email->attachments = $this->getAttachments($body_data,$email_number);
 
-		    	 if (empty(strpos($body_data,'type=image;')) == false) {
-		 		 	$email->attachments[] = $this->fetchAttachments($email_number);
-		 		 }
+		    	// Add more attachments if any attachment that is not inline exist
+		    	$email->attachments[] = $this->fetchAttachments($email_number);
 
 		    	// Save all this emails information
 		 		$emailsFound[$email_number] = $email;

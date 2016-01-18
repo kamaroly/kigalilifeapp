@@ -24,7 +24,7 @@ class AdsController extends Controller
         $resource = new Collection($ads, new AdTransformer);
 
         // Turn all of that into a JSON string
-        return $this->fractal->createData($resource)->toArray(); 
+        return $this->fractal->createData($resource)->toArray()['data']; 
     }
 
     public function show($id)

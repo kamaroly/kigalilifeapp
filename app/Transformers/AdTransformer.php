@@ -9,12 +9,14 @@ class AdTransformer extends Fractal\TransformerAbstract
 	public function transform(Ad $ad)
 	{
 	    $data =  [
+
 	        'subject'   => $ad->subject,
 	        'slug'    	=> $ad->subject,
 	        'body'		=> $ad->body,
-	        'time'		=> $ad->udate,
 	        'owner'   	=> $ad->owner,
 	        'address' 	=> $ad->from_address,
+	        'time'		=> $ad->udate,
+	        'message_id'=> (int) $ad->message_number,
 	    ];
 
 	    $data['attachments'] = json_decode($ad->attachments);

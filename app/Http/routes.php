@@ -1,4 +1,7 @@
 <?php
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+header("Access-Control-Allow-Headers: X-Authorization");
 
 /*
 |--------------------------------------------------------------------------
@@ -31,8 +34,13 @@ Route::group(['middleware' => ['web']], function () {
 	Route::get('fetch','FetchMailController@index');
 	Route::get('auth', 'GmailController@googleAuth');
 
-	Route::get('api/v1/ads', '\App\Http\Controllers\Apis\AdsController@all');
-	Route::get('api/v1/ads/after/{number}', '\App\Http\Controllers\Apis\AdsController@after');
-
-
+	Route::group(['prefix'=>'api/v1'], function(){
+		Route::get('/ads', '\App\Http\Controllers\Apis\AdsController@all');
+		Route::get('/ads/{message_number}', '\App\Http\Controllers\Apis\AdsController@show');
+		Route::get('/ads/after/{message_number}', '\App\Http\Controllers\Apis\AdsController@after');
+	});
+	Route::get('test', function(){
+		App\Models\Ad::truncate();
+		return App\Models\Ad::all();
+	});
 });
