@@ -105,7 +105,7 @@ class MailFetcher
 		$this->password = $password;
 		$this->hostname = $hostname;
 		$this->timeLimit= $timeLimit;
-		$this->searchQuery =  'SUBJECT "[kigalilife]" SINCE "'.date('d F Y',strtotime('-4 day',time())).'"';
+		$this->searchQuery =  'SUBJECT "[kigalilife]" SINCE "'.date('d F Y',strtotime('-14 day',time())).'"';
 		$this->attachmentPath =  public_path().$this->attachmentPath;
 
 		/** Authenticate upon initiating this class */
@@ -191,41 +191,55 @@ class MailFetcher
 		    	$ad = new Ad;
 		    	// Get headers 
 		    	$email = $this->getHeaders($email_number);
+		    	
+		    	try
+		    	{
+				    	
+						$ad->owner			=  trim(str_replace('[kigalilife]', '',$email->from[0]->personal));
+						$ad->subject		=  trim(str_replace('[kigalilife]', '',$email->subject));
 
-				$ad->owner			=  trim(str_replace('[kigalilife]', '',$email->from[0]->personal));
-				$ad->subject		=  trim(str_replace('[kigalilife]', '',$email->subject));
+						$ad->slug		    =  $this->slug(str_slug($ad->subject));
+						$ad->message_id		=  $email->message_id;
+						$ad->message_number	=  $email_number;
+						$ad->sent_date		=  $email->date;
+						$ad->recieved_date	=  $email->maildate;
+						$ad->sender_address	=  $email->senderaddress;
+						$ad->from_address	=  trim(substr($email->fromaddress,1,strpos($email->fromaddress,'[kigalilife]')-1));
+						$ad->size			=  $email->size;
+						$ad->udate			=  $email->udate;
 
-				$ad->slug		    =  $this->slug(str_slug($ad->subject));
-				$ad->message_id		=  $email->message_id;
-				$ad->message_number	=  $email_number;
-				$ad->sent_date		=  $email->date;
-				$ad->recieved_date	=  $email->maildate;
-				$ad->sender_address	=  $email->senderaddress;
-				$ad->from_address	=  trim(substr($email->fromaddress,1,strpos($email->fromaddress,'[kigalilife]')-1));
-				$ad->size			=  $email->size;
-				$ad->udate			=  $email->udate;
+				    	// Get mail number
+				    	$email->message_number = $email_number;
 
-		    	// Get mail number
-		    	$email->message_number = $email_number;
+				    	// Get body of the current message
+				    	$body_data = imap_fetchbody($this->connection,$email_number,"");
 
-		    	// Get body of the current message
-		    	$body_data = imap_fetchbody($this->connection,$email_number,"");
+				    	// Get clean body
+				    	$ad->body = trim($this->getBody($body_data));
 
-		    	// Get clean body
-		    	$ad->body = trim($this->getBody($body_data));
+				    	// Get attachments if they are inline
+				    	$email->attachments = $this->getAttachments($body_data,$email_number);
 
-		    	// Get attachments if they are inline
-		    	$email->attachments = $this->getAttachments($body_data,$email_number);
+				    	// Add more attachments if any attachment that is not inline exist
+				    	$otherAttachemnts = $this->fetchAttachments($email_number);
 
-		    	// Add more attachments if any attachment that is not inline exist
-		    	$email->attachments[] = $this->fetchAttachments($email_number);
+				    	if (!empty($otherAttachemnts)) {
+							$email->attachments[] = $otherAttachemnts;
+				    	}
 
-		    	// Save all this emails information
-		 		$emailsFound[$email_number] = $email;
+				    	// Save all this emails information
+				 		$emailsFound[$email_number] = $email;
 
-		 		$ad->attachments	=  json_encode($email->attachments);
+				 		$ad->attachments	=  json_encode($email->attachments);
 
-		 		$ad->save();
+				 		$ad->save();
+
+				    
+				}
+				catch(\Exception $e)
+				{
+					print $e->getMessage();
+				}
 		        if($count++ >= $this->max_emails) break;
 		   }
 
@@ -258,7 +272,6 @@ class MailFetcher
 	{
 		$headers = new \stdClass();
 		$headerInfo = imap_headerinfo($this->connection,$email_number);
-
 		foreach ($headerInfo as $key => $value) {
 			$key = strtolower($key);
 			$headers->$key  = $value;
@@ -325,12 +338,21 @@ class MailFetcher
 	 */
 	public function fetchAttachments($email_number)
 	{
-		        $retrivedAttachments = array();
+				  /* get information specific to this email */
+		        $overview = imap_fetch_overview($this->connection,$email_number,0);
+		 
+		        /* get mail message, not actually used here. 
+		           Refer to http://php.net/manual/en/function.imap-fetchbody.php
+		           for details on the third parameter.
+		         */
+		        $message = imap_fetchbody($this->connection,$email_number,2);
 		 
 		        /* get mail structure */
 		        $structure = imap_fetchstructure($this->connection, $email_number);
 		 
 		        $attachments = array();
+		 
+		        /* if any attachments found... */
 		 
 		        /* if any attachments found... */
 		        if(isset($structure->parts) && count($structure->parts)) 
@@ -385,16 +407,18 @@ class MailFetcher
 		                }
 		            }
 		        }
-		 
+		 		
+
 		        /* iterate through each attachment and save it */
 		        foreach($attachments as $key => $attachment)
 		        {
 		        	// if it's not attachment remove it 
 					// and go to the next element
-		 			if ($attachment['is_attachment'] != 1) {
+		 			if ($attachment['is_attachment']==false) {
 		 				unset($attachments[$key]);
 		 				continue;
 		 			}
+
 		 		   // For us to reach here we have an attachment
 		 		   // Let's extract it then
 	               $filename = $attachment['name'];
@@ -406,13 +430,12 @@ class MailFetcher
 	                 * have the attachment with the same file name.
 	                 */
 	                $absolutePath = $this->attachmentPath . $email_number . "-" . $filename;
-	                $fp = fopen($absolutePath, "w+");
-	                fwrite($fp, $attachment['attachment']);
-	                // Adding the file to the lists of the attachments then return it
-	                $retrivedAttachments[] = $absolutePath;
-	                fclose($fp);
+
+	                file_put_contents($absolutePath, $attachment['attachment']);
+
 		        }
-        return $retrivedAttachments;
+
+        return $attachments;
 	}
 	/**
 	 * Set search query
