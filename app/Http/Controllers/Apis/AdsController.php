@@ -16,11 +16,15 @@ class AdsController extends Controller
 
 
     function __construct(Response $response) {
+      
         $this->response = $response;
     }
 
     public function all()
     {
+        if (Input::has('key') == false) {
+          return $this->response->errorUnauthorized();
+        }
         $ads = Ad::paginate(20);
 
         // Pass this array (collection) into a resource, which will also have a "Transformer"
@@ -33,9 +37,13 @@ class AdsController extends Controller
 
     public function show($id)
     {
+       if (Input::has('key') == false) {
+          return $this->response->errorUnauthorized();
+        }
         try {
 
             $ad = Ad::where('message_number',$id)->first();
+
             return  $this->response->withItem($ad,new AdTransformer);
 
         } catch (\Exception $e) {
@@ -47,6 +55,9 @@ class AdsController extends Controller
 
     public function after($number)
     {
+     if (Input::has('key') == false) {
+          return $this->response->errorUnauthorized();
+        }
         $ads = Ad::whereRaw('message_number > '.$number)->paginate(20);
 
         // Pass this array (collection) into a resource, which will also have a "Transformer"
