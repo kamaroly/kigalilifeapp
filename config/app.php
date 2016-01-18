@@ -160,6 +160,7 @@ return [
         /**
          * Third part providers
          */
+        EllipseSynergie\ApiResponse\Laravel\ResponseServiceProvider::class,
     ],
 
     /*

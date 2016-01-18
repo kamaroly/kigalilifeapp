@@ -3,15 +3,20 @@ namespace App\Http\Controllers\Apis;
 use App\Http\Controllers\Controller;
 use App\Models\Ad;
 use App\Transformers\AdTransformer;
-use League\Fractal\Manager;
-use League\Fractal\Resource\Collection;
+use EllipseSynergie\ApiResponse\Contracts\Response;
+use Exception;
 
 class AdsController extends Controller
 {
-    public $fractal;
 
-    function __construct(Manager $fractal) {
-        $this->fractal = $fractal;
+    /**
+     * @var Response
+     */
+    public $response;
+
+
+    function __construct(Response $response) {
+        $this->response = $response;
     }
 
     public function all()
@@ -21,24 +26,21 @@ class AdsController extends Controller
         // Pass this array (collection) into a resource, which will also have a "Transformer"
         // This "Transformer" can be a callback or a new instance of a Transformer object
         // We type hint for array, because each item in the $ads var is an array
-        $resource = new Collection($ads, new AdTransformer);
-
+        
         // Turn all of that into a JSON string
-        return $this->fractal->createData($resource)->toArray()['data']; 
+        return $this->response->withPaginator($ads,new AdTransformer,'ads');
     }
 
     public function show($id)
     {
         try {
 
-            $book = Ad::findOrFail($id);
+            $ad = Ad::where('message_number',$id)->first();
+            return  $this->response->withItem($ad,new AdTransformer);
 
-            $resource = new Fractal\Resource\Item($book,new AdTransformer);
-
-        } catch (ModelNotFoundException $e) {
+        } catch (\Exception $e) {
 
             return $this->response->errorNotFound();
-
         }
     }
 
@@ -50,9 +52,6 @@ class AdsController extends Controller
         // Pass this array (collection) into a resource, which will also have a "Transformer"
         // This "Transformer" can be a callback or a new instance of a Transformer object
         // We type hint for array, because each item in the $ads var is an array
-        $resource = new Collection($ads, new AdTransformer);
-
-        // Turn all of that into a JSON string
-        return $this->fractal->createData($resource)->toArray(); 
+       return $this->response->withPaginator($ads,new AdTransformer,'ads');
     }
 }

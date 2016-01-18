@@ -338,7 +338,8 @@ class MailFetcher
 	 */
 	public function fetchAttachments($email_number)
 	{
-				  /* get information specific to this email */
+				$attachmentsPath = array();
+				/* get information specific to this email */
 		        $overview = imap_fetch_overview($this->connection,$email_number,0);
 		 
 		        /* get mail message, not actually used here. 
@@ -351,9 +352,6 @@ class MailFetcher
 		        $structure = imap_fetchstructure($this->connection, $email_number);
 		 
 		        $attachments = array();
-		 
-		        /* if any attachments found... */
-		 
 		        /* if any attachments found... */
 		        if(isset($structure->parts) && count($structure->parts)) 
 		        {
@@ -433,9 +431,11 @@ class MailFetcher
 
 	                file_put_contents($absolutePath, $attachment['attachment']);
 
+	                $attachmentsPath[] = $filename;
 		        }
 
-        return $attachments;
+
+        return $attachmentsPath;
 	}
 	/**
 	 * Set search query
