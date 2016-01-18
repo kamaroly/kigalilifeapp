@@ -5,6 +5,7 @@ use App\Models\Ad;
 use App\Transformers\AdTransformer;
 use EllipseSynergie\ApiResponse\Contracts\Response;
 use Exception;
+use Illuminate\Support\Facades\Input;
 
 class AdsController extends Controller
 {
