@@ -11,7 +11,7 @@ class AdTransformer extends Fractal\TransformerAbstract
 	    $data =  [
 
 	        'subject'   => $ad->subject,
-	        'slug'    	=> $ad->subject,
+	        'slug'    	=> $ad->slug,
 	        'body'		=> $ad->body,
 	        'owner'   	=> $ad->owner,
 	        'address' 	=> $ad->from_address,
@@ -19,6 +19,7 @@ class AdTransformer extends Fractal\TransformerAbstract
 	        'message_id'=> (int) $ad->message_number,
 	    ];
 
+	    $data['profile']     = 'https://xa.yimg.com/kq/groups/23147588/tn/194346319/name/Short+hair+puppy_male.jpg';
 	    $data['attachments'] = json_decode($ad->attachments);
 
 	    return $data;

@@ -322,10 +322,7 @@ class MailFetcher
 				 		// For the sake of gaining time and performance, we won't save our
 				 		// images locally, instead we are going to add them to the  array
 				 		// which we will be saving in our db
-			 			$retrivedAttachments[] = [
-			 										'thumbnail' => $value,
-			 										'full_image'=> str_replace('/tn/', '/', $value)
-			 									 ];
+			 			$retrivedAttachments[] = str_replace('/tn/', '/', $value);
 			 		}
 				 }
         return $retrivedAttachments;
