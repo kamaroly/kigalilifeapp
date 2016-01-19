@@ -228,9 +228,9 @@ class MailFetcher
 				    	}
 
 				    	if (count($email->attachments) == 0) {
-				    		$email->attachments[] = [0=>Url('/attachments/blank.jpg')];
+				    		$email->attachments[] = Url('/attachments/blank.jpg');
 				    	}
-				    	
+
 				    	// Save all this emails information
 				 		$emailsFound[$email_number] = $email;
 
