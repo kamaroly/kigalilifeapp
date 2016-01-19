@@ -40,7 +40,6 @@ Route::group(['middleware' => ['web']], function () {
 		Route::get('/ads/after/{message_number}', '\App\Http\Controllers\Apis\AdsController@after');
 	});
 	Route::get('test', function(){
-		App\Models\Ad::truncate();
-		return App\Models\Ad::all();
+		return Url('/attachments/blank.jpg');
 	});
 });
