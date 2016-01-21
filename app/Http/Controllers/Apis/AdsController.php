@@ -59,7 +59,7 @@ class AdsController extends Controller
      if (Input::has('key') == false) {
           return $this->response->errorUnauthorized();
         }
-        $ads = Ad::whereRaw('message_number > '.$number)->get();
+        $ads = Ad::whereRaw('message_number > '.$number)->orderBy('message_number','DESC')->paginate(50);
 
         // Pass this array (collection) into a resource, which will also have a "Transformer"
         // This "Transformer" can be a callback or a new instance of a Transformer object
