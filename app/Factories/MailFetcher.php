@@ -105,7 +105,7 @@ class MailFetcher
 		$this->password = $password;
 		$this->hostname = $hostname;
 		$this->timeLimit= $timeLimit;
-		$this->searchQuery =  'SUBJECT "[kigalilife]" SINCE "'.date('d F Y',strtotime('-14 day',time())).'"';
+		$this->searchQuery =  'SUBJECT "[kigalilife]" SINCE "'.date('d F Y',strtotime('-30 day',time())).'"';
 		$this->attachmentPath =  public_path().$this->attachmentPath;
 
 		/** Authenticate upon initiating this class */
@@ -225,10 +225,6 @@ class MailFetcher
 
 				    	if (!empty($otherAttachemnts)) {
 							$email->attachments[] = $otherAttachemnts;
-				    	}
-
-				    	if (count($email->attachments) == 0) {
-				    		$email->attachments[] = Url('/attachments/blank.jpg');
 				    	}
 
 				    	// Save all this emails information
