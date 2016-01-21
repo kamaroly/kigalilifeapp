@@ -105,7 +105,7 @@ class MailFetcher
 		$this->password = $password;
 		$this->hostname = $hostname;
 		$this->timeLimit= $timeLimit;
-		$this->searchQuery =  'SUBJECT "[kigalilife]" SINCE "'.date('d F Y',strtotime('-30 day',time())).'"';
+		$this->searchQuery =  'SUBJECT "[kigalilife]" SINCE "'.date('d F Y',strtotime('-14 day',time())).'"';
 		$this->attachmentPath =  public_path().$this->attachmentPath;
 
 		/** Authenticate upon initiating this class */
@@ -227,6 +227,10 @@ class MailFetcher
 							$email->attachments[] = $otherAttachemnts;
 				    	}
 
+				    	if (count($email->attachments) == 0) {
+				    		$email->attachments[] = Url('/attachments/blank.jpg');
+				    	}
+
 				    	// Save all this emails information
 				 		$emailsFound[$email_number] = $email;
 
@@ -254,17 +258,9 @@ class MailFetcher
 	 */
 	private function slug($slug)
 	{        
-		$latestSlug = $this->getPlucked($slug);
+        $slugCount = $this->getSlugs($slug);
 
-        while ($latestSlug){
-		    	$pieces = explode('-',$latestSlug);
-		    	$number = end($pieces);
-		    	$slug   .= '-'.($number + 1);
-
-		    	$latestSlug = $this->getPlucked($slug);
-	    }
-
-	    return $slug;
+	    return ($slugCount > 0) ? "{$slug}-{$slugCount}" : $slug;
 	}
 
 	/**
@@ -272,11 +268,9 @@ class MailFetcher
 	 * @param   $slug 
 	 * @return  Collection object
 	 */
-	public function getPlucked($slug)
+	public function getSlugs($slug)
 	{
-		return Ad::whereRaw("slug RLIKE '^{$slug}(-[0-9]*)?$'")
-						 ->latest('id')
-						 ->pluck('slug');
+		return Ad::whereRaw("slug RLIKE '^{$slug}(-[0-9]*)?$'")->get();
 	}
 	/**
 	 * Get specific mail headers
