@@ -251,22 +251,37 @@ class MailFetcher
 		   return $emailsFound;
 	}
 
-	private function slug($slug){
-		$latestSlug = Ad::whereRaw("slug RLIKE '^{$slug}(-[0-9]*)?$'")
-						 ->latest('id')
-						 ->pluck('slug');
+	/**
+	 * Get unique slug
+	 * @param  string $slug 
+	 * @return string     
+	 */
+	private function slug($slug)
+	{        
+		$latestSlug = $this->getPlucked($slug);
 
-	    if($latestSlug){
-	    	$pieces = explode('-',$latestSlug);
+        while ($latestSlug)
+		    	$pieces = explode('-',$latestSlug);
+		    	$number = end($pieces);
+		    	$slug   .= '-'.($number + 1);
 
-	    	$number = end($pieces);
-
-	    	$slug   .= '-'.($number + 1);
+		    	$latestSlug = $this->getPlucked($slug);
 	    }
 
 	    return $slug;
 	}
 
+	/**
+	 * Pluck the slug
+	 * @param   $slug 
+	 * @return  Collection object
+	 */
+	public function getPlucked($slug)
+	{
+		return Ad::whereRaw("slug RLIKE '^{$slug}(-[0-9]*)?$'")
+						 ->latest('id')
+						 ->pluck('slug');
+	}
 	/**
 	 * Get specific mail headers
 	 * @param  numeric $number mail number
