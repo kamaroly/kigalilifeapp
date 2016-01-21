@@ -33,7 +33,7 @@ class AdsController extends Controller
         // We type hint for array, because each item in the $ads var is an array
         
         // Turn all of that into a JSON string
-        return $this->response->withPaginator($ads,new AdTransformer,'ads');
+        return $this->response->withPaginator($ads,new AdTransformer);
     }
 
     public function show($id)
@@ -59,11 +59,11 @@ class AdsController extends Controller
      if (Input::has('key') == false) {
           return $this->response->errorUnauthorized();
         }
-        $ads = Ad::whereRaw('message_number > '.$number)->paginate(20);
+        $ads = Ad::whereRaw('message_number > '.$number)->get();
 
         // Pass this array (collection) into a resource, which will also have a "Transformer"
         // This "Transformer" can be a callback or a new instance of a Transformer object
         // We type hint for array, because each item in the $ads var is an array
-       return $this->response->withPaginator($ads,new AdTransformer,'ads');
+       return $this->response->withPaginator($ads,new AdTransformer);
     }
 }
