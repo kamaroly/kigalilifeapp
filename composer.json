@@ -10,7 +10,8 @@
         "sunra/php-simple-html-dom-parser": "v1.5.0",
         "league/fractal": "^0.13.0",
         "ellipsesynergie/api-response": "^0.12.0",
-        "folklore/image": "^0.3.1"
+        "folklore/image": "^0.3.1",
+        "willdurand/email-reply-parser": "^2.4"
     },
     "require-dev": {
         "mockery/mockery": "0.9.*",
