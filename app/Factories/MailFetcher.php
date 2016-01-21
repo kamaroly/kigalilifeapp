@@ -260,7 +260,7 @@ class MailFetcher
 	{        
 		$latestSlug = $this->getPlucked($slug);
 
-        while ($latestSlug)
+        while ($latestSlug){
 		    	$pieces = explode('-',$latestSlug);
 		    	$number = end($pieces);
 		    	$slug   .= '-'.($number + 1);
