@@ -39,7 +39,12 @@ Route::group(['middleware' => ['web']], function () {
 		Route::get('/ads/{message_number}', '\App\Http\Controllers\Apis\AdsController@show');
 		Route::get('/ads/after/{message_number}', '\App\Http\Controllers\Apis\AdsController@after');
 	});
+
 	Route::get('test', function(){
-		return $_SERVER['HTTP_HOST'].'/attachments/blank.jpg';
+		$ad = App\Models\Ad::find(17);
+		
+
+		$email = \EmailReplyParser\EmailReplyParser::read($ad->body);
+		dd($email);
 	});
 });
