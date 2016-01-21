@@ -192,8 +192,8 @@ class MailFetcher
 		    	// Get headers 
 		    	$email = $this->getHeaders($email_number);
 		    	
-		    	try
-		    	{
+		    	// try
+		    	// {
 				    	
 						$ad->owner			=  trim(str_replace('[kigalilife]', '',$email->from[0]->personal));
 						$ad->subject		=  trim(str_replace('[kigalilife]', '',$email->subject));
@@ -239,11 +239,11 @@ class MailFetcher
 				 		$ad->save();
 
 				    
-				}
-				catch(\Exception $e)
-				{
-					print $e->getMessage();
-				}
+				// }
+				// catch(\Exception $e)
+				// {
+				// 	print $e->getMessage();
+				// }
 		        if($count++ >= $this->max_emails) break;
 		   }
 
@@ -258,7 +258,7 @@ class MailFetcher
 	 */
 	private function slug($slug)
 	{        
-        $slugCount = $this->getSlugs($slug);
+        $slugCount = count($this->getSlugs($slug));
 
 	    return ($slugCount > 0) ? "{$slug}-{$slugCount}" : $slug;
 	}
