@@ -192,8 +192,8 @@ class MailFetcher
 		    	// Get headers 
 		    	$email = $this->getHeaders($email_number);
 		    	
-		    	// try
-		    	// {
+		    	try
+		    	{
 				    	
 						$ad->owner			=  trim(str_replace('[kigalilife]', '',$email->from[0]->personal));
 						$ad->subject		=  trim(str_replace('[kigalilife]', '',$email->subject));
@@ -239,11 +239,11 @@ class MailFetcher
 				 		$ad->save();
 
 				    
-				// }
-				// catch(\Exception $e)
-				// {
-				// 	print $e->getMessage();
-				// }
+				}
+				catch(\Exception $e)
+				{
+					print $e->getMessage();
+				}
 		        if($count++ >= $this->max_emails) break;
 		   }
 
@@ -251,27 +251,20 @@ class MailFetcher
 		   return $emailsFound;
 	}
 
-	/**
-	 * Get unique slug
-	 * @param  string $slug 
-	 * @return string     
-	 */
-	private function slug($slug)
-	{        
-        $slugCount = count($this->getSlugs($slug));
+	private function slug($slug){
+		$latestSlug = Ad::whereRaw("slug RLIKE '^".$slug."(-[0-9]*)?$'")
+						 ->latest('id')
+						 ->pluck('slug');
 
-	    return ($slugCount > 0) ? "{$slug}-{$slugCount}" : $slug;
+	    if($latestSlug){
+	    	$pieces = explode('-',$latestSlug);
+	    	$number = end($pieces);
+	    	$slug   .= '-'.($number + 1);
+	    }
+
+	    return $slug;
 	}
 
-	/**
-	 * Pluck the slug
-	 * @param   $slug 
-	 * @return  Collection object
-	 */
-	public function getSlugs($slug)
-	{
-		return Ad::whereRaw("slug RLIKE '^{$slug}(-[0-9]*)?$'")->get();
-	}
 	/**
 	 * Get specific mail headers
 	 * @param  numeric $number mail number
