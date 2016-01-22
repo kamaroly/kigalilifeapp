@@ -35,15 +35,34 @@ Route::group(['middleware' => ['web']], function () {
 	Route::get('auth', 'GmailController@googleAuth');
 
 	Route::group(['prefix'=>'api/v1'], function(){
+		/** REGISTRATION ROUTES */
+		Route::get('register', function(){
+			return [ 'error' => false,'message'=>'SMS request is initiated! You will be receiving it shortly.'];
+		});
+		Route::get('verifyotp', function(){
+			return [ 'error' 	=> false,
+					 'message'	=>'User created successfully!',
+					 'profile'	=> [
+					 				'name' =>'Test name',
+					 				'email'=>'Test email',
+					 				'mobile'=>'0000000000',
+					 				'apikey'=>'088d196bacbe6bf08657720c9d562390',
+					 				'status'=> 0,
+					 				'created_at' => date('Y-m-d H:i:s')
+					 				], 
+					];
+		});
+
+
+		/** FETCHING ADS ROUTES */
 		Route::get('/ads', '\App\Http\Controllers\Apis\AdsController@all');
 		Route::get('/ads/{message_number}', '\App\Http\Controllers\Apis\AdsController@show');
 		Route::get('/ads/after/{message_number}', '\App\Http\Controllers\Apis\AdsController@after');
+
 	});
 
 	Route::get('test', function(){
 		$ad = App\Models\Ad::find(17);
-		
-
 		$email = \EmailReplyParser\EmailReplyParser::read($ad->body);
 		dd($email);
 	});
