@@ -16,7 +16,7 @@ class AdTransformer extends Fractal\TransformerAbstract
 	        'owner'   	=> $ad->owner,
 	        'address' 	=> $ad->from_address,
 	        'time'		=> $ad->udate,
-	        'message_id'=> (int) $ad->message_number,
+	        'message_id'=> (int) $ad->id,
 	    ];
 
 	    $data['attachments'] = json_decode($ad->attachments);

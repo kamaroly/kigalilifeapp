@@ -36,22 +36,8 @@ Route::group(['middleware' => ['web']], function () {
 
 	Route::group(['prefix'=>'api/v1'], function(){
 		/** REGISTRATION ROUTES */
-		Route::get('register', function(){
-			return [ 'error' => false,'message'=>'SMS request is initiated! You will be receiving it shortly.'];
-		});
-		Route::get('verifyotp', function(){
-			return [ 'error' 	=> false,
-					 'message'	=>'User created successfully!',
-					 'profile'	=> [
-					 				'name' =>'Test name',
-					 				'email'=>'Test email',
-					 				'mobile'=>'0000000000',
-					 				'apikey'=>'088d196bacbe6bf08657720c9d562390',
-					 				'status'=> 0,
-					 				'created_at' => date('Y-m-d H:i:s')
-					 				], 
-					];
-		});
+		Route::get('register', '\App\Http\Controllers\Apis\AuthController@register');
+		Route::get('verifyotp', '\App\Http\Controllers\Apis\AuthController@verifyotp');
 
 
 		/** FETCHING ADS ROUTES */
