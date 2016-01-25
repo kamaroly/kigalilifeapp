@@ -295,8 +295,8 @@ class MailFetcher
 		        $body = $elems[0]->innertext;
 	        }
 		}
-
-		return strip_tags($body);
+		
+		return $body;
 	}
 
 	/**

@@ -49,7 +49,8 @@ Route::group(['middleware' => ['web']], function () {
 
 	Route::get('test', function(){
 		$ad = App\Models\Ad::find(17);
-		$email = \EmailReplyParser\EmailReplyParser::read($ad->body);
+		$html = 'Delivered-To: gerageza@gmail.com\r\nReceived: by 10.140.19.163 with SMTP id 32csp3082348qgh;\r\n        Tue, 19 Jan 2016 23:40:39 -0800 (PST)\r\nX-Received: by 10.140.18.114 with SMTP id 105mr43429433qge.41.1453275639569;\r\n        Tue, 19 Jan 2016 23:40:39 -0800 (PST)\r\nReturn-Path: \r\nReceived: from ng15.bullet.mail.bf1.yahoo.com (ng15.bullet.mail.bf1.yahoo.com. [98.139.164.110])\r\n        by mx.google.com with ESMTPS id h33si42363303qge.30.2016.01.19.23.40.39\r\n        for \r\n        (version=TLS1 cipher';
+		preg_match_all('/Delivered\-To(.*?)\(version\=TLS1/s', $html,$email);
 		dd($email);
 	});
 });
