@@ -283,8 +283,9 @@ class MailFetcher
 	 * @return array         headers info
 	 */
 	public function getBody($body_data)
-	{
-		return quoted_printable_decode($body_data);
+	{	
+		$input  = quoted_printable_decode($body_data);
+		return preg_replace('/(<[^>]+) style=".*?"/i', '$1', $input)	 
 	}
 
 	/**
