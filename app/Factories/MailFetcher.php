@@ -284,18 +284,7 @@ class MailFetcher
 	 */
 	public function getBody($body_data)
 	{
-		$body = quoted_printable_decode($body_data);
-
-		if (strpos(strtolower($body),strtolower('id="ygrp-text"')) != false) {
-			$dom = HtmlDomParser::str_get_html( $body );
-	        $elems = $dom->find('div[id=ygrp-text]');
-
-	        if (empty($elems) == false) {
-		        $body = $elems[0]->innertext;
-	        }
-		}
-		
-		return $body;
+		return quoted_printable_decode($body_data);
 	}
 
 	/**
