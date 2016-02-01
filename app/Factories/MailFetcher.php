@@ -198,7 +198,6 @@ class MailFetcher
 						$ad->owner			=  trim(str_replace('[kigalilife]', '',$email->from[0]->personal));
 						$ad->subject		=  trim(str_replace('[kigalilife]', '',$email->subject));
 
-						$ad->slug		    =  $this->slug(str_slug($ad->subject));
 						$ad->message_id		=  $email->message_id;
 						$ad->message_number	=  $email_number;
 						$ad->sent_date		=  $email->date;

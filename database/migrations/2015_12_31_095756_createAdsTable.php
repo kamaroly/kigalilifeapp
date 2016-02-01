@@ -16,7 +16,7 @@ class CreateAdsTable extends Migration
             $table->increments('id')->unique();
             $table->string('owner');
             $table->string('subject');
-            $table->string('slug')->unique();
+            // $table->string('slug')->unique();
             $table->text('body');
             $table->string('message_id');
             $table->string('message_number'); 
