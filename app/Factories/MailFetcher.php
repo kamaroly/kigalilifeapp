@@ -285,7 +285,7 @@ class MailFetcher
 	public function getBody($body_data)
 	{	
 		$input  = quoted_printable_decode($body_data);
-		return preg_replace('/(<[^>]+) style=".*?"/i', '$1', $input)	 
+		return preg_replace('/(<[^>]+) style=".*?"/i', '$1', $input); 
 	}
 
 	/**
