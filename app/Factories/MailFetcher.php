@@ -283,9 +283,26 @@ class MailFetcher
 	 * @return array         headers info
 	 */
 	public function getBody($body_data)
-	{	
-		$input  = quoted_printable_decode($body_data);
-		return preg_replace('/(<[^>]+) style=".*?"/i', '$1', $input); 
+	{
+		$body = quoted_printable_decode($body_data);
+
+		try
+		{
+			if (strpos(strtolower($body),strtolower('id="ygrp-text"')) != false) {
+				$dom = HtmlDomParser::str_get_html( $body );
+		        $elems = $dom->find('div[id=ygrp-text]');
+
+		        if (empty($elems) == false) {
+			        $body = $elems[0]->innertext;
+		        }
+			}
+		}
+		catch(\Exception $e)
+		{
+			print $e->getMessage();
+		}
+		
+		return  preg_replace('/(<[^>]+) style=".*?"/i', '$1', $body);
 	}
 
 	/**
